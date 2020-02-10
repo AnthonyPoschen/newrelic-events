@@ -17,17 +17,14 @@ import (
 // TODO: allow crazy things, because we are in a crazy world
 const maxSize = 950000
 
+///////////////////////////////////////////////////////////////////////////
+
 type dataStore struct {
 	*sync.Mutex
 	Data string
 }
-type Newrelic struct {
-	Poster func(req *http.Request) error
 
-	data    dataStore
-	URL     string
-	license string
-}
+///////////////////////////////////////////////////////////////////////////
 
 func New(AccountID string, License string) *Newrelic {
 	return &Newrelic{
@@ -39,6 +36,16 @@ func New(AccountID string, License string) *Newrelic {
 		},
 		license: License,
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+type Newrelic struct {
+	Poster func(req *http.Request) error
+
+	data    dataStore
+	URL     string
+	license string
 }
 
 // RecordEvent will add the event to the queue of events that is thread safe, you can go RecordEvent
@@ -96,12 +103,16 @@ func (n *Newrelic) _Post(data string) error {
 	return n.Poster(req)
 }
 
+///////////////////////////////////////////////////////////////////////////
+
 // Sync performs a force Post to newrelic disregarding waiting for max buffer size
 func (n *Newrelic) Sync() error {
 	n.data.Lock()
 	defer n.data.Unlock()
 	return n._Post(n.data.Data)
 }
+
+///////////////////////////////////////////////////////////////////////////
 
 func StandardPost(client *http.Client) func(*http.Request) error {
 	return func(req *http.Request) error {
@@ -119,6 +130,8 @@ func StandardPost(client *http.Client) func(*http.Request) error {
 		return nil
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////
 
 func AsyncPost(ctx context.Context, client http.Client, errorLog io.Writer) func(*http.Request) error {
 	return func(req *http.Request) error {

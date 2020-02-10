@@ -50,3 +50,24 @@ func TestPacketForming(t *testing.T) {
 	}
 
 }
+
+var recordEventBadInputsData = []struct {
+	Name  string
+	Input map[string]interface{}
+}{
+	{},
+	{
+		Name:  "A Name",
+		Input: map[string]interface{}{"Time to break Json Marshal": make(chan int)},
+	},
+}
+
+func TestRecordEventBadInputs(t *testing.T) {
+	nr := Newrelic{}
+	for k, v := range recordEventBadInputsData {
+		if err := nr.RecordEvent(v.Name, v.Input); err == nil {
+			t.Fatalf("Test: %d has no error", k)
+		}
+	}
+
+}

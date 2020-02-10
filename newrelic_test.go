@@ -55,10 +55,16 @@ var recordEventBadInputsData = []struct {
 	Name  string
 	Input map[string]interface{}
 }{
-	{},
+	{
+		Name:  "",
+		Input: map[string]interface{}{"valid": "Input"},
+	},
 	{
 		Name:  "A Name",
 		Input: map[string]interface{}{"Time to break Json Marshal": make(chan int)},
+	}, {
+		Name:  "nil input",
+		Input: nil,
 	},
 }
 

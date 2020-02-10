@@ -1,3 +1,3 @@
-module gitlab.com/zanven/newrelic-events
+module gitlab.com/zanven/newrelicEvents
 
 go 1.13

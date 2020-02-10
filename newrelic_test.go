@@ -63,7 +63,7 @@ var recordEventBadInputsData = []struct {
 }
 
 func TestRecordEventBadInputs(t *testing.T) {
-	nr := Newrelic{}
+	nr := New("", "")
 	for k, v := range recordEventBadInputsData {
 		if err := nr.RecordEvent(v.Name, v.Input); err == nil {
 			t.Fatalf("Test: %d has no error", k)

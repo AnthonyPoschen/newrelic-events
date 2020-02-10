@@ -1,4 +1,4 @@
-package newrelic
+package newrelicEvents
 
 import (
 	"compress/gzip"

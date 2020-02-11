@@ -3,10 +3,12 @@ package newrelicEvents
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 )
 
+///////////////////////////////////////////////////////////////////////////
 var packetFormingData = []struct {
 	Event    string
 	input    []map[string]interface{}
@@ -51,6 +53,7 @@ func TestPacketForming(t *testing.T) {
 
 }
 
+///////////////////////////////////////////////////////////////////////////
 var recordEventBadInputsData = []struct {
 	Name  string
 	Input map[string]interface{}
@@ -76,4 +79,41 @@ func TestRecordEventBadInputs(t *testing.T) {
 		}
 	}
 
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+func TestPost(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipped Packet test")
+	}
+	adder := "0123456789"
+	var Packet string
+	for len(Packet) < 955000 {
+		Packet += adder
+	}
+	nr := New("", "")
+	occured := false
+	nr.Poster = func(*http.Request) error {
+		occured = true
+		return nil
+	}
+	nr.RecordEvent("event", map[string]interface{}{"test": Packet})
+	if occured == false {
+		t.Fatal("Poster never called")
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+func TestSync(t *testing.T) {
+	nr := New("", "")
+	nr.Poster = func(*http.Request) error {
+		return fmt.Errorf("fixed")
+	}
+	nr.RecordEvent("test", map[string]interface{}{"test": "data"})
+	err := nr.Sync()
+	if err.Error() != "fixed" {
+		t.Fatal("Test error does not match")
+	}
 }

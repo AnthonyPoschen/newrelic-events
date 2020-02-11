@@ -2,6 +2,8 @@
 
 GO SDK for posting new relic events
 
+https://docs.newrelic.com/docs/insights/insights-data-sources/custom-data/introduction-event-api
+
 ## why?
 
 after needing to use newrelic at scale on production systems it became

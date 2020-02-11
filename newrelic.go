@@ -133,18 +133,27 @@ func StandardPost(client *http.Client) func(*http.Request) error {
 
 ///////////////////////////////////////////////////////////////////////////
 
-func AsyncPost(ctx context.Context, client http.Client, errorLog io.Writer) func(*http.Request) error {
+// AsyncPost is an en example poster that will run in a go routine and callback a function with the status if provided
+// as the standard error won't be valuable
+func AsyncPost(ctx context.Context, client http.Client, callback func(error)) func(*http.Request) error {
 	return func(req *http.Request) error {
 		req = req.WithContext(ctx)
 		go func() {
 			resp, err := client.Do(req)
 			if err != nil {
-				errorLog.Write([]byte(fmt.Sprintf("Failed to send web request: %s\n", err)))
+				if callback != nil {
+					callback(err)
+				}
 				return
 			}
 			defer resp.Body.Close()
 			if resp.StatusCode != 200 {
-				errorLog.Write([]byte(fmt.Sprintf("Bad Response: %d - %s\n", resp.StatusCode, resp.Status)))
+				if callback != nil {
+					callback(err)
+				}
+			}
+			if callback != nil {
+				callback(nil)
 			}
 			return
 		}()

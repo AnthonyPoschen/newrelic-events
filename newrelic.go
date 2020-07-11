@@ -1,5 +1,5 @@
 package newrelicEvents
-askvjbsavksadbvsakdjbsv
+
 import (
 	"compress/gzip"
 	"context"

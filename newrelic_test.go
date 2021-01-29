@@ -1,4 +1,4 @@
-package newrelicEvents
+package events
 
 import (
 	"encoding/json"
@@ -34,7 +34,7 @@ func TestPacketForming(t *testing.T) {
 	for k, v := range packetFormingData {
 		nr := New("", "")
 		for _, i := range v.input {
-			nr.RecordEvent(v.Event, i)
+			nr.Record(v.Event, i)
 		}
 		var expMap []map[string]interface{}
 		err := json.Unmarshal([]byte(v.expected), &expMap)
@@ -74,7 +74,7 @@ var recordEventBadInputsData = []struct {
 func TestRecordEventBadInputs(t *testing.T) {
 	nr := New("", "")
 	for k, v := range recordEventBadInputsData {
-		if err := nr.RecordEvent(v.Name, v.Input); err == nil {
+		if err := nr.Record(v.Name, v.Input); err == nil {
 			t.Fatalf("Test: %d has no error", k)
 		}
 	}
@@ -98,7 +98,7 @@ func TestPost(t *testing.T) {
 		occured = true
 		return nil
 	}
-	nr.RecordEvent("event", map[string]interface{}{"test": Packet})
+	nr.Record("event", map[string]interface{}{"test": Packet})
 	if occured == false {
 		t.Fatal("Poster never called")
 	}
@@ -111,7 +111,7 @@ func TestSync(t *testing.T) {
 	nr.Poster = func(*http.Request) error {
 		return fmt.Errorf("fixed")
 	}
-	nr.RecordEvent("test", map[string]interface{}{"test": "data"})
+	nr.Record("test", map[string]interface{}{"test": "data"})
 	err := nr.Sync()
 	if err.Error() != "fixed" {
 		t.Fatal("Test error does not match")

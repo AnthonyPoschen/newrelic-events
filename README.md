@@ -15,19 +15,19 @@ and strip back to just event posting mechanism in an attempt to improve performa
 
 to get this package
 ```sh
-go get -u gitlab.com/zanven/newrelicEvents
+go get -u github.com/zanven42/newrelic-events
 ```
 example usage of the package
 ```golang
 func main() {
-    nr := newrelicEvents.New("APPLICATION_ID","LICENCE")
+    nre := events.New("APPLICATION_ID","LICENCE")
     
-    myEvent := map[string]interface{}{"var":"value"}
+    myEvent := map[string]interface{}{"ENV":"DEV","APP":"newrelic-events-hello-world":"var3":"val3"}
 
     // RecordEvent is safe to use concurrently
-    go nr.RecordEvent("custom_event_type",myEvent)
+    go nre.Record("custom_event_type",myEvent)
 
     // ensure all data is posted before shutdown
-    err := nr.Sync()
+    err := nre.Sync()
 }
 ```

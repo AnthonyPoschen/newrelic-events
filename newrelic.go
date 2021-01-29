@@ -1,4 +1,4 @@
-package newrelicEvents
+package events
 
 import (
 	"compress/gzip"
@@ -26,8 +26,8 @@ type dataStore struct {
 
 ///////////////////////////////////////////////////////////////////////////
 
-func New(AccountID string, License string) *Newrelic {
-	return &Newrelic{
+func New(AccountID string, License string) *Events {
+	return &Events{
 		Poster: StandardPost(http.DefaultClient),
 		URL:    fmt.Sprintf("https://insights-collector.newrelic.com/v1/accounts/%s/events", AccountID),
 		data: dataStore{
@@ -40,7 +40,7 @@ func New(AccountID string, License string) *Newrelic {
 
 ///////////////////////////////////////////////////////////////////////////
 
-type Newrelic struct {
+type Events struct {
 	Poster func(req *http.Request) error
 
 	data    dataStore
@@ -48,8 +48,8 @@ type Newrelic struct {
 	license string
 }
 
-// RecordEvent will add the event to the queue of events that is thread safe, you can go RecordEvent
-func (n *Newrelic) RecordEvent(Name string, in map[string]interface{}) error {
+// Record will add the event to the queue of events that is thread safe, you can go Record
+func (n *Events) Record(Name string, in map[string]interface{}) error {
 	if Name == "" {
 		return errors.New("No Event Name")
 	}
@@ -78,7 +78,7 @@ func (n *Newrelic) RecordEvent(Name string, in map[string]interface{}) error {
 }
 
 // _Post is in charge of building the http Request and passing it on to the designated poster
-func (n *Newrelic) _Post(data string) error {
+func (n *Events) _Post(data string) error {
 	// wrap the hand made json array correctly for posting (don't know a faster way to perform this logic)
 	data = fmt.Sprintf("[%s]", data)
 	r, w := io.Pipe()
@@ -106,7 +106,7 @@ func (n *Newrelic) _Post(data string) error {
 ///////////////////////////////////////////////////////////////////////////
 
 // Sync performs a force Post to newrelic disregarding waiting for max buffer size
-func (n *Newrelic) Sync() error {
+func (n *Events) Sync() error {
 	n.data.Lock()
 	defer n.data.Unlock()
 	return n._Post(n.data.Data)

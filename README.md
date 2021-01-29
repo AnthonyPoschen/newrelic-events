@@ -20,7 +20,7 @@ go get -u github.com/zanven42/newrelic-events
 example usage of the package
 ```golang
 func main() {
-    nre := events.New("APPLICATION_ID","LICENCE")
+    nre := events.New("ACCOUNT_ID","LICENCE")
     
     myEvent := map[string]interface{}{"ENV":"DEV","APP":"newrelic-events-hello-world":"var3":"val3"}
 

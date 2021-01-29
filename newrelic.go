@@ -26,7 +26,7 @@ type dataStore struct {
 
 ///////////////////////////////////////////////////////////////////////////
 
-func New(AccountID string, License string) *Events {
+func New(AccountID string, APIKey string) *Events {
 	return &Events{
 		Poster: StandardPost(http.DefaultClient),
 		URL:    fmt.Sprintf("https://insights-collector.newrelic.com/v1/accounts/%s/events", AccountID),
@@ -34,7 +34,7 @@ func New(AccountID string, License string) *Events {
 			Mutex: &sync.Mutex{},
 			Data:  "",
 		},
-		license: License,
+		key: APIKey,
 	}
 }
 
@@ -43,9 +43,9 @@ func New(AccountID string, License string) *Events {
 type Events struct {
 	Poster func(req *http.Request) error
 
-	data    dataStore
-	URL     string
-	license string
+	data dataStore
+	URL  string
+	key  string
 }
 
 // Record will add the event to the queue of events that is thread safe, you can go Record
@@ -98,7 +98,7 @@ func (n *Events) _Post(data string) error {
 		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-Insert-Key", n.license)
+	req.Header.Add("X-Insert-Key", n.key)
 	req.Header.Add("Content-Encoding", "gzip")
 	return n.Poster(req)
 }
@@ -109,7 +109,12 @@ func (n *Events) _Post(data string) error {
 func (n *Events) Sync() error {
 	n.data.Lock()
 	defer n.data.Unlock()
-	return n._Post(n.data.Data)
+	err := n._Post(n.data.Data)
+	if err != nil {
+		return err
+	}
+	n.data.Data = ""
+	return nil
 }
 
 ///////////////////////////////////////////////////////////////////////////
